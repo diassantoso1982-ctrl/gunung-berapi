@@ -1,0 +1,6 @@
+{
+  "name": "Petualangan Sains: Proses Terjadinya Gunung Meletus",
+  "description": "Storyboard map game interaktif pembelajaran proses terjadinya gunung meletus untuk siswa kelas 6 SD dengan pemandu suara, teks eksplanasi lengkap, simulasi erupsi, dan kuis seru.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
