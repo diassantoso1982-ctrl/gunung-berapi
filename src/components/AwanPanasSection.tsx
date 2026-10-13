@@ -49,14 +49,19 @@ export const AwanPanasSection: React.FC<AwanPanasSectionProps> = ({ onContinue }
       <div className="bg-white p-6 sm:p-7 rounded-3xl border border-amber-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
           <div>
-            <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
-              Pos 3 · Visualisasi Detail Awan Panas
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+                Pos 3 · Kawah Awan Panas
+              </span>
+              <span className="text-xs font-extrabold text-white bg-amber-600 px-3 py-1 rounded-full shadow-2xs">
+                📖 Struktur Teks Eksplanasi: Bagian 2 - Deretan Penjelas
+              </span>
+            </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 mt-1">
               Kawah Bahaya: Awan Panas (Wedhus Gembel)
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 mt-0.5">
-              Dipandu oleh Kapten Nala untuk mengamati fenomena mematikan letusan gunung api.
+              <strong>Fungsi dalam Teks Eksplanasi:</strong> Menjelaskan urutan tahapan erupsi saat kubah lava runtuh dan menyemburkan awan panas bersuhu 600°C di lereng.
             </p>
           </div>
 

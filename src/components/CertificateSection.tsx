@@ -27,11 +27,16 @@ export const CertificateSection: React.FC<CertificateSectionProps> = ({ quizScor
     <div className="space-y-6">
       {/* Smart Learning Summary Cards */}
       <div className="bg-white p-6 rounded-3xl border border-amber-200 shadow-xs space-y-4">
-        <div className="flex items-center gap-2">
-          <BookCheck className="w-5 h-5 text-orange-600" />
-          <h3 className="font-extrabold text-stone-900 text-base sm:text-lg">
-            Rangkuman Kilat Belajar Gunung Meletus (Kelas 6 SD)
-          </h3>
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-stone-100">
+          <div className="flex items-center gap-2">
+            <BookCheck className="w-5 h-5 text-orange-600" />
+            <h3 className="font-extrabold text-stone-900 text-base sm:text-lg">
+              Rangkuman Kilat Belajar Gunung Meletus (Kelas 6 SD)
+            </h3>
+          </div>
+          <span className="text-xs font-extrabold text-white bg-emerald-600 px-3 py-1 rounded-full shadow-2xs">
+            📖 Struktur Teks Eksplanasi: Bagian 3 - Penutup (Kesimpulan)
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

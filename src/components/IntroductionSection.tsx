@@ -14,14 +14,20 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({ onCont
       {/* Hero Title & Short Explanation */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-amber-200 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
-          <div>
-            <span className="text-xs font-bold text-orange-600 uppercase tracking-widest">
-              Pos 1 · Penjelasan Singkat
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="text-xs font-extrabold text-orange-700 uppercase tracking-widest bg-orange-100 px-3 py-1 rounded-full border border-orange-200">
+                Pos 1 · Dermaga Ekspedisi
+              </span>
+              <span className="text-xs font-extrabold text-white bg-blue-600 px-3 py-1 rounded-full shadow-2xs">
+                📖 Struktur Teks Eksplanasi: Bagian 1 - Pernyataan Umum
+              </span>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight mt-0.5">
               {PENJELASAN_SINGKAT.judulUtama}
             </h1>
-          </div>
+            <p className="text-xs text-stone-500 mt-1">
+              <strong>Fungsi dalam Teks Eksplanasi:</strong> Menjelaskan pengertian dan gambaran umum tentang peristiwa letusan gunung api.
+            </p>
 
           <button
             type="button"
