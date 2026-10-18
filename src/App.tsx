@@ -22,6 +22,8 @@ import { CertificateSection } from './components/CertificateSection';
 import { AwanPanasSection } from './components/AwanPanasSection';
 import { LaharAndSimulationSection } from './components/LaharAndSimulationSection';
 import { playClickSound, speakText, stopSpeaking } from './utils/audio';
+import { kaptenNalaImg, gunungMeletusImg, awanPanasImg, aliranLaharImg, resolveAssetUrl } from './assets/images';
+import { ImageModal, ImageModalData } from './components/ImageModal';
 
 export default function App() {
   const [currentStageId, setCurrentStageId] = useState<StageId>('pos1_pengenalan');
@@ -41,6 +43,7 @@ export default function App() {
       return 30;
     }
   });
+  const [galleryModalData, setGalleryModalData] = useState<ImageModalData | null>(null);
 
   // Save progress
   useEffect(() => {
@@ -108,14 +111,38 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-200 shadow-2xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-amber-400 shadow-xs flex-shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                setGalleryModalData({
+                  title: 'Kapten Nala',
+                  subtitle: 'Komandan Ekspedisi Sains Vulkanik Indonesia',
+                  src: kaptenNalaImg,
+                  fallbackSrc: resolveAssetUrl('images/kapten_nala.jpg'),
+                  alt: 'Kapten Nala - Komandan Ekspedisi Sains Vulkanik',
+                  caption:
+                    'Kapten Nala memandu kawan-kawan kelas 6 SD menjelajahi misteri letusan gunung berapi dengan peta storyboard, teks eksplanasi, kuis, dan piagam sertifikat kelulusan!',
+                  speechText:
+                    'Ahoy Kawan! Senang sekali bisa berpetualang bersamamu di Ekspedisi Gunung Meletus!',
+                  legendItems: [
+                    { label: 'Seragam Penjelajah', color: '#d97706', desc: 'Siap meneliti medan vulkanik' },
+                    { label: 'Kompas & Teropong', color: '#0284c7', desc: 'Alat navigasi ekspedisi' },
+                    { label: 'Bendera Merah Putih', color: '#dc2626', desc: 'Kekayaan geologis Indonesia di Ring of Fire' },
+                  ],
+                })
+              }
+              className="w-10 h-10 rounded-2xl overflow-hidden border-2 border-amber-400 shadow-xs flex-shrink-0 cursor-zoom-in transition-transform hover:scale-105 active:scale-95"
+              title="Klik untuk melihat foto Kapten Nala (HD)"
+            >
               <img
-                src="/src/assets/images/kapten_nala_1791906531237.jpg"
+                src={kaptenNalaImg}
                 alt="Kapten Nala"
-                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/kapten_nala.jpg');
+                }}
                 className="w-full h-full object-cover object-top"
               />
-            </div>
+            </button>
             <div>
               <span className="font-extrabold text-sm sm:text-base text-stone-900 tracking-tight block leading-tight">
                 Ekspedisi Vulkanik Kapten Nala
@@ -126,24 +153,33 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Header Stage Controls */}
+          {/* Quick Header Stage Controls & HD Gallery Shortcut */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleSelectStage('pos1_pengenalan')}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-800 text-xs font-bold border border-red-200 transition-all shadow-2xs"
+              title="Lihat Detail Erupsi Gunung"
+            >
+              <span>🌋 Detail Erupsi</span>
+            </button>
+
             <button
               type="button"
               onClick={() => handleSelectStage('pos3_awan_panas')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-800 text-xs font-bold border border-orange-200 transition-all shadow-2xs"
               title="Lihat Visual Awan Panas & Letusan"
             >
-              <span>🌋 Awan Panas</span>
+              <span>💨 Awan Panas</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSelectStage('pos4_lahar_video')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-bold border border-amber-200 transition-all shadow-2xs"
-              title="Lihat Visual Lahar Dingin"
+              title="Lihat Visual Lahar Dingin & Video"
             >
-              <span>🌊 Lahar Dingin</span>
+              <span>🌊 Lahar & Video</span>
             </button>
 
             <button
@@ -196,6 +232,193 @@ export default function App() {
           guideName="Kapten Nala"
           subtitle="Komandan Ekspedisi Sains Vulkanik"
         />
+
+        {/* Quick Visual Gallery Strip (4 Gambar Kunci Ekspedisi Kapten Nala) */}
+        <section className="bg-white/90 border border-amber-200 rounded-3xl p-4 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-xl bg-orange-100 text-orange-600 text-sm font-bold">📸</span>
+              <div>
+                <h2 className="text-xs sm:text-sm font-extrabold text-stone-900 leading-tight">
+                  Galeri Pengamatan Sains Kapten Nala (Visual Utama HD)
+                </h2>
+                <p className="text-[11px] text-stone-500">
+                  4 gambar utama yang diuji tajam & muncul sempurna di GitHub dan Vercel
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-300 w-fit">
+              🔍 Klik Gambar untuk Perbesar (HD Zoom)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            {/* Card 1: Kapten Nala */}
+            <button
+              type="button"
+              onClick={() =>
+                setGalleryModalData({
+                  title: 'Kapten Nala',
+                  subtitle: 'Pemandu Ekspedisi Sains Vulkanik',
+                  src: kaptenNalaImg,
+                  fallbackSrc: resolveAssetUrl('images/kapten_nala.jpg'),
+                  alt: 'Kapten Nala',
+                  caption:
+                    'Kapten Nala adalah pemandu cilik ramah yang menemani siswa kelas 6 SD menjelajahi misteri letusan gunung meletus dengan bahasa sederhana.',
+                  speechText: 'Ahoy Kawan! Saya Kapten Nala, siap memandumu menjelajah gunung meletus!',
+                  legendItems: [
+                    { label: 'Topi Kapten', color: '#f59e0b', desc: 'Jangkar emas tanda komandan' },
+                    { label: 'Kompas', color: '#38bdf8', desc: 'Penunjuk arah pulau vulkanik' },
+                    { label: 'Badge ID', color: '#ef4444', desc: 'Penjelajah gunung api Indonesia' },
+                  ],
+                })
+              }
+              className="group relative rounded-2xl overflow-hidden border border-amber-200 bg-amber-50 text-left transition-all hover:shadow-md hover:border-orange-400 cursor-zoom-in"
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img
+                  src={kaptenNalaImg}
+                  alt="Kapten Nala"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/kapten_nala.jpg');
+                  }}
+                  className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-2.5">
+                <span className="text-[10px] font-bold text-orange-600 block">Pemandu Sains</span>
+                <h3 className="text-xs font-extrabold text-stone-900 group-hover:text-orange-600">
+                  1. Kapten Nala
+                </h3>
+              </div>
+            </button>
+
+            {/* Card 2: Erupsi Gunung Berapi */}
+            <button
+              type="button"
+              onClick={() =>
+                setGalleryModalData({
+                  title: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                  subtitle: 'Anatomi Erupsi & Dapur Magma',
+                  src: gunungMeletusImg,
+                  fallbackSrc: resolveAssetUrl('images/gunung_meletus.jpg'),
+                  alt: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                  caption:
+                    'Penampang detail erupsi memperlihatkan dapur magma di bawah tanah, saluran pipa kepundan, lubang kawah, kolom abu vulkanik di angkasa, semburan lava pijar, dan lontaran batu bom vulkanik.',
+                  speechText:
+                    'Perhatikan penampang ini Kawan! Kamu bisa melihat dapur magma di kedalaman bumi yang mendorong letusan dahsyat ini!',
+                  legendItems: [
+                    { label: 'Magma Chamber', color: '#dc2626', desc: 'Dapur batuan cair pijar' },
+                    { label: 'Crater', color: '#f59e0b', desc: 'Kawah mulut letusan' },
+                    { label: 'Ash Cloud', color: '#64748b', desc: 'Kolom abu ke angkasa' },
+                    { label: 'Lava Flow', color: '#ea580c', desc: 'Lelehan batuan cair' },
+                  ],
+                })
+              }
+              className="group relative rounded-2xl overflow-hidden border border-amber-200 bg-amber-50 text-left transition-all hover:shadow-md hover:border-orange-400 cursor-zoom-in"
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img
+                  src={gunungMeletusImg}
+                  alt="Detail Bagian Erupsi Gunung"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/gunung_meletus.jpg');
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-2.5">
+                <span className="text-[10px] font-bold text-red-600 block">Anatomi Erupsi</span>
+                <h3 className="text-xs font-extrabold text-stone-900 group-hover:text-orange-600">
+                  2. Detail Erupsi Gunung
+                </h3>
+              </div>
+            </button>
+
+            {/* Card 3: Awan Panas */}
+            <button
+              type="button"
+              onClick={() =>
+                setGalleryModalData({
+                  title: 'Gumpalan Awan Panas (Pyroclastic Flow) Meluncur di Lereng',
+                  subtitle: 'Wedhus Gembel Gunung Merapi',
+                  src: awanPanasImg,
+                  fallbackSrc: resolveAssetUrl('images/awan_panas.jpg'),
+                  alt: 'Awan Panas Wedhus Gembel',
+                  caption:
+                    'Awan panas bersuhu 600°C meluncur deras menuruni lereng Gunung Merapi dengan kecepatan melebihi 100 km/jam, membakar vegetasi dan memicu evakuasi warga.',
+                  speechText:
+                    'Awas Kawan! Awan panas meluncur sangat kencang dan suhunya 600 derajat Celsius!',
+                  legendItems: [
+                    { label: 'Awan Panas', color: '#71717a', desc: 'Gas & abu 600°C' },
+                    { label: 'Hutan Terbakar', color: '#f97316', desc: 'Dampak suhu ekstrem' },
+                    { label: 'Evakuasi Desa', color: '#38bdf8', desc: 'Warga menuju titik kumpul' },
+                  ],
+                })
+              }
+              className="group relative rounded-2xl overflow-hidden border border-amber-200 bg-amber-50 text-left transition-all hover:shadow-md hover:border-orange-400 cursor-zoom-in"
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img
+                  src={awanPanasImg}
+                  alt="Awan Panas Wedhus Gembel"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/awan_panas.jpg');
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-2.5">
+                <span className="text-[10px] font-bold text-orange-600 block">Wedhus Gembel</span>
+                <h3 className="text-xs font-extrabold text-stone-900 group-hover:text-orange-600">
+                  3. Awan Panas di Lereng
+                </h3>
+              </div>
+            </button>
+
+            {/* Card 4: Aliran Lahar Dingin */}
+            <button
+              type="button"
+              onClick={() =>
+                setGalleryModalData({
+                  title: 'Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai',
+                  subtitle: 'Lembah Sungai Pasca Erupsi',
+                  src: aliranLaharImg,
+                  fallbackSrc: resolveAssetUrl('images/aliran_lahar.jpg'),
+                  alt: 'Aliran Lahar Dingin di Sungai',
+                  caption:
+                    'Guyuran hujan lebat di puncak melarutkan jutaan ton endapan abu vulkanik menjadi banjir lumpur pekat yang menggelindingkan batu-batu raksasa di alur sungai.',
+                  speechText:
+                    'Perhatikan banjir lumpur ini Kawan! Lahar dingin sanggup menggelindingkan batu kali raksasa!',
+                  legendItems: [
+                    { label: 'Hujan Lebat', color: '#38bdf8', desc: 'Pemicu utama di puncak' },
+                    { label: 'Lahar Dingin', color: '#a16207', desc: 'Banjir lumpur abu' },
+                    { label: 'Batu Raksasa', color: '#57534e', desc: 'Boulders terbawa arus' },
+                    { label: 'Rambu Bahaya', color: '#eab308', desc: 'Peringatan dini sungai' },
+                  ],
+                })
+              }
+              className="group relative rounded-2xl overflow-hidden border border-amber-200 bg-amber-50 text-left transition-all hover:shadow-md hover:border-orange-400 cursor-zoom-in"
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img
+                  src={aliranLaharImg}
+                  alt="Aliran Lahar Dingin di Sungai"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/aliran_lahar.jpg');
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-2.5">
+                <span className="text-[10px] font-bold text-amber-700 block">Banjir Vulkanik</span>
+                <h3 className="text-xs font-extrabold text-stone-900 group-hover:text-orange-600">
+                  4. Lahar Dingin di Sungai
+                </h3>
+              </div>
+            </button>
+          </div>
+        </section>
 
         {/* Dynamic Pos Content */}
         <div className="pt-2">
@@ -262,6 +485,9 @@ export default function App() {
       <footer className="mt-16 text-center text-xs text-stone-400 border-t border-amber-200/60 pt-6">
         <p>Media Pembelajaran IPA & Bahasa Indonesia Kelas 6 SD · Materi Gunung Meletus</p>
       </footer>
+
+      {/* Fullscreen HD Image Preview Modal for Gallery & Header */}
+      <ImageModal data={galleryModalData} onClose={() => setGalleryModalData(null)} />
     </div>
   );
 }

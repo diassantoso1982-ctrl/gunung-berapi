@@ -98,6 +98,13 @@ export const StoryboardMap: React.FC<StoryboardMapProps> = ({
                 }`}
               >
                 <div>
+                  {/* Kapten Nala Avatar on Active Node */}
+                  {isCurrent && (
+                    <span className="absolute -top-3 -right-2 z-20 flex items-center gap-1 bg-amber-900 text-yellow-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md border border-yellow-400 animate-bounce">
+                      ⚓ KAPTEN NALA
+                    </span>
+                  )}
+
                   {/* Top node header */}
                   <div className="flex items-center justify-between mb-2">
                     <div

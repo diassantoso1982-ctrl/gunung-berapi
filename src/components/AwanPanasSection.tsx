@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Flame, Wind, AlertTriangle, ShieldCheck, Volume2, ArrowRight, Eye, Sparkles } from 'lucide-react';
+import { Flame, Wind, AlertTriangle, ShieldCheck, Volume2, ArrowRight, Eye, Sparkles, Maximize2 } from 'lucide-react';
 import { InteractiveStoryboardAnimation } from './InteractiveStoryboardAnimation';
 import { speakText, playClickSound } from '../utils/audio';
+import { awanPanasImg, resolveAssetUrl } from '../assets/images';
+import { ImageModal, ImageModalData } from './ImageModal';
 
 interface AwanPanasSectionProps {
   onContinue: () => void;
@@ -9,6 +11,7 @@ interface AwanPanasSectionProps {
 
 export const AwanPanasSection: React.FC<AwanPanasSectionProps> = ({ onContinue }) => {
   const [selectedHotspot, setSelectedHotspot] = useState<string>('suhu');
+  const [modalData, setModalData] = useState<ImageModalData | null>(null);
 
   const hotspots = [
     {
@@ -80,14 +83,64 @@ export const AwanPanasSection: React.FC<AwanPanasSectionProps> = ({ onContinue }
         </div>
 
         {/* Real Generated High-Res Illustration of Awan Panas */}
-        <div className="relative rounded-2xl overflow-hidden border-2 border-stone-800 shadow-md">
+        <div className="relative rounded-2xl overflow-hidden border-2 border-stone-800 shadow-md group">
           <img
-            src="/src/assets/images/awan_panas_1791906529510.jpg"
-            alt="Visualisasi Awan Panas Wedhus Gembel Gunung Merapi"
-            referrerPolicy="no-referrer"
-            className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover"
+            src={awanPanasImg}
+            alt="Gumpalan Awan Panas (Pyroclastic Flow) Meluncur di Lereng Merapi"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/awan_panas.jpg');
+            }}
+            className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover transition-transform duration-300 group-hover:scale-102 cursor-zoom-in"
+            onClick={() =>
+              setModalData({
+                title: 'Gumpalan Awan Panas (Pyroclastic Flow) Meluncur di Lereng Merapi',
+                subtitle: 'Pos 3 · Kawah Awan Panas Kapten Nala',
+                src: awanPanasImg,
+                fallbackSrc: resolveAssetUrl('images/awan_panas.jpg'),
+                alt: 'Gumpalan Awan Panas Wedhus Gembel Merapi',
+                caption:
+                  'Foto pengamatan visual awan panas (wedhus gembel) meluncur deras menuruni lereng Gunung Merapi. Suhu gas dan serpihan debunya mencapai 600°C dengan kecepatan meluncur lebih dari 100 km/jam, membakar pepohonan hutan dan memaksa warga desa segera mengungsi.',
+                speechText:
+                  'Awas Kawan! Perhatikan gumpalan awan panas yang tebal mirip bulu domba ini meluncur di lereng gunung! Suhunya mencapai 600 derajat Celsius!',
+                legendItems: [
+                  { label: 'Hot Ash & Gas Cloud', color: '#71717a', desc: 'Gulungan gas belerang dan abu pekat membara' },
+                  { label: 'Burning Forest', color: '#f97316', desc: 'Hutan terbakar karena panas ekstrem awan' },
+                  { label: 'Evacuating Village', color: '#38bdf8', desc: 'Warga desa bergegas mengungsi ke zona aman' },
+                  { label: 'Flying Dust', color: '#a8a29e', desc: 'Debu tajam melayang yang mewajibkan masker' },
+                ],
+              })
+            }
           />
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950 via-stone-900/70 to-transparent p-4 sm:p-5 text-white">
+
+          {/* Quick Zoom HD Button */}
+          <button
+            type="button"
+            onClick={() =>
+              setModalData({
+                title: 'Gumpalan Awan Panas (Pyroclastic Flow) Meluncur di Lereng Merapi',
+                subtitle: 'Pos 3 · Kawah Awan Panas Kapten Nala',
+                src: awanPanasImg,
+                fallbackSrc: '/images/awan_panas.jpg',
+                alt: 'Gumpalan Awan Panas Wedhus Gembel Merapi',
+                caption:
+                  'Foto pengamatan visual awan panas (wedhus gembel) meluncur deras menuruni lereng Gunung Merapi. Suhu gas dan serpihan debunya mencapai 600°C dengan kecepatan meluncur lebih dari 100 km/jam, membakar pepohonan hutan dan memaksa warga desa segera mengungsi.',
+                speechText:
+                  'Awas Kawan! Perhatikan gumpalan awan panas yang tebal mirip bulu domba ini meluncur di lereng gunung! Suhunya mencapai 600 derajat Celsius!',
+                legendItems: [
+                  { label: 'Hot Ash & Gas Cloud', color: '#71717a', desc: 'Gulungan gas belerang dan abu pekat membara' },
+                  { label: 'Burning Forest', color: '#f97316', desc: 'Hutan terbakar karena panas ekstrem awan' },
+                  { label: 'Evacuating Village', color: '#38bdf8', desc: 'Warga desa bergegas mengungsi ke zona aman' },
+                  { label: 'Flying Dust', color: '#a8a29e', desc: 'Debu tajam melayang yang mewajibkan masker' },
+                ],
+              })
+            }
+            className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-orange-400 hover:text-white text-xs font-bold backdrop-blur-sm border border-stone-700 shadow-md transition-all active:scale-95"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Perbesar Gambar (HD Zoom)</span>
+          </button>
+
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950 via-stone-900/70 to-transparent p-4 sm:p-5 text-white pointer-events-none">
             <span className="text-[10px] font-bold tracking-widest text-orange-400 uppercase block">
               Foto Pengamatan Lapangan Kapten Nala
             </span>
@@ -170,6 +223,9 @@ export const AwanPanasSection: React.FC<AwanPanasSectionProps> = ({ onContinue }
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Fullscreen HD Image Preview Modal */}
+      <ImageModal data={modalData} onClose={() => setModalData(null)} />
     </div>
   );
 };

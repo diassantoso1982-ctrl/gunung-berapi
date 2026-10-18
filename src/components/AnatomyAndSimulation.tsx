@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, Info, Sparkles, Volume2, Film, Image as ImageIcon, Flame, Clapperboard } from 'lucide-react';
+import { Play, RotateCcw, Info, Sparkles, Volume2, Film, Image as ImageIcon, Flame, Clapperboard, ExternalLink, Maximize2, Camera } from 'lucide-react';
 import { ANATOMI_GUNUNG } from '../data/volcanoData';
 import { playClickSound, playEruptionSound, speakText } from '../utils/audio';
 import { InteractiveStoryboardAnimation } from './InteractiveStoryboardAnimation';
+import { gunungMeletusImg, resolveAssetUrl } from '../assets/images';
+import { ImageModal, ImageModalData } from './ImageModal';
 
 export const AnatomyAndSimulation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'storyboard' | 'gambar' | 'video' | 'simulasi'>('storyboard');
+  const [diagramSubTab, setDiagramSubTab] = useState<'foto_hd' | 'vektor'>('foto_hd');
   const [selectedPart, setSelectedPart] = useState<string>('dapur_magma');
   const [gasPressure, setGasPressure] = useState<number>(75);
   const [isErupting, setIsErupting] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<ImageModalData | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const currentAnatomyInfo = ANATOMI_GUNUNG.find((item) => item.id === selectedPart) || ANATOMI_GUNUNG[0];
@@ -191,22 +195,125 @@ export const AnatomyAndSimulation: React.FC = () => {
       {/* TAB 1: GAMBAR ANATOMI GUNUNG MELETUS */}
       {activeTab === 'gambar' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Visual SVG Diagram with interactive hotspots */}
+          {/* Visual Diagram Column */}
           <div className="lg:col-span-7 bg-gradient-to-b from-sky-100 via-amber-50 to-amber-100/70 p-4 rounded-3xl border border-amber-300 relative shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                Penampang Melintang Gunung Berapi
+            {/* Sub-tab switcher: Foto Realistis HD vs Diagram Skematis Irisan */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-1.5 bg-white/80 p-1 rounded-xl border border-amber-200 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setDiagramSubTab('foto_hd');
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    diagramSubTab === 'foto_hd'
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'text-stone-700 hover:text-stone-900'
+                  }`}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Foto Erupsi Merapi (HD)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setDiagramSubTab('vektor');
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    diagramSubTab === 'vektor'
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'text-stone-700 hover:text-stone-900'
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  <span>Diagram Irisan (Vektor)</span>
+                </button>
+              </div>
+
+              <span className="text-[11px] text-stone-500">
+                {diagramSubTab === 'foto_hd' ? 'Gambar Nyata Erupsi Merapi' : 'Klik nomor pada gambar'}
               </span>
-              <span className="text-xs text-stone-500">Klik titik nomor untuk detail</span>
             </div>
 
-            {/* Educational SVG Graphic */}
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-sky-200/40 border border-amber-200/60 flex items-center justify-center">
-              <svg
-                viewBox="0 0 500 400"
-                className="w-full h-full select-none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+            {/* View A: Real Generated High-Res Photo of Merapi Eruption */}
+            {diagramSubTab === 'foto_hd' ? (
+              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border-2 border-stone-800 bg-stone-900 shadow-md group">
+                <img
+                  src={gunungMeletusImg}
+                  alt="Visualisasi Detail Bagian Erupsi Gunung Merapi"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/gunung_meletus.jpg');
+                  }}
+                  className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300 group-hover:scale-105"
+                  onClick={() =>
+                    setModalData({
+                      title: 'Visualisasi Detail Bagian Erupsi Gunung Merapi',
+                      subtitle: 'Pos 1 · Anatomi Vulkanik & Erupsi Eksplosif',
+                      src: gunungMeletusImg,
+                      fallbackSrc: resolveAssetUrl('images/gunung_meletus.jpg'),
+                      alt: 'Visualisasi Detail Bagian Erupsi Gunung Merapi',
+                      caption:
+                        'Ilustrasi visual mendetail erupsi Gunung Merapi yang memperlihatkan kolom abu vulkanik pekat membubung ke atmosfer, semburan lava pijar, kawah kepundan utama, rekahan lereng, serta dapur magma membara di bawah kerak bumi.',
+                      speechText:
+                        'Perhatikan gambar erupsi Gunung Merapi ini Kawan! Kolom abu vulkanik membubung tinggi ke angkasa, magma merah menyembur dari kawah kepundan, dan lelehan lava mengalir membakar lereng gunung!',
+                      legendItems: [
+                        { label: 'Kolom Abu', color: '#64748b', desc: 'Awan abu dan debu pekat membubung ke angkasa' },
+                        { label: 'Lava Pijar', color: '#ea580c', desc: 'Magma cair yang keluar mengalir membakar lereng' },
+                        { label: 'Kawah Utama', color: '#f59e0b', desc: 'Mulut kepundan tempat semburan energi erupsi' },
+                        { label: 'Bom Vulkanik', color: '#dc2626', desc: 'Bongkahan batu panas yang terlontar ke udara' },
+                      ],
+                    })
+                  }
+                />
+
+                {/* Perbesar HD Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setModalData({
+                      title: 'Visualisasi Detail Bagian Erupsi Gunung Merapi',
+                      subtitle: 'Pos 1 · Anatomi Vulkanik & Erupsi Eksplosif',
+                      src: gunungMeletusImg,
+                      fallbackSrc: resolveAssetUrl('images/gunung_meletus.jpg'),
+                      alt: 'Visualisasi Detail Bagian Erupsi Gunung Merapi',
+                      caption:
+                        'Ilustrasi visual mendetail erupsi Gunung Merapi yang memperlihatkan kolom abu vulkanik pekat membubung ke atmosfer, semburan lava pijar, kawah kepundan utama, rekahan lereng, serta dapur magma membara di bawah kerak bumi.',
+                      speechText:
+                        'Perhatikan gambar erupsi Gunung Merapi ini Kawan! Kolom abu vulkanik membubung tinggi ke angkasa, magma merah menyembur dari kawah kepundan, dan lelehan lava mengalir membakar lereng gunung!',
+                      legendItems: [
+                        { label: 'Kolom Abu', color: '#64748b', desc: 'Awan abu dan debu pekat membubung ke angkasa' },
+                        { label: 'Lava Pijar', color: '#ea580c', desc: 'Magma cair yang keluar mengalir membakar lereng' },
+                        { label: 'Kawah Utama', color: '#f59e0b', desc: 'Mulut kepundan tempat semburan energi erupsi' },
+                        { label: 'Bom Vulkanik', color: '#dc2626', desc: 'Bongkahan batu panas yang terlontar ke udara' },
+                      ],
+                    })
+                  }
+                  className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-amber-300 hover:text-white text-xs font-bold backdrop-blur-sm border border-stone-700 shadow-md transition-all active:scale-95"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Perbesar HD</span>
+                </button>
+
+                {/* Floating labels over image */}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950 via-stone-900/70 to-transparent p-3 sm:p-4 text-white pointer-events-none">
+                  <span className="text-[10px] font-bold tracking-widest text-amber-300 uppercase block">
+                    Visual Nyata Erupsi
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold">
+                    Erupsi Dahsyat Gunung Merapi & Bagian-Bagiannya
+                  </h4>
+                </div>
+              </div>
+            ) : (
+              /* View B: Educational SVG Graphic */
+              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-sky-200/40 border border-amber-200/60 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 500 400"
+                  className="w-full h-full select-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                 {/* Sky & Sun */}
                 <rect width="500" height="400" fill="#bae6fd" opacity="0.35" />
                 <circle cx="80" cy="70" r="30" fill="#fde047" opacity="0.6" />
@@ -367,6 +474,7 @@ export const AnatomyAndSimulation: React.FC = () => {
                 </g>
               </svg>
             </div>
+            )}
           </div>
 
           {/* Details Column for Selected Part */}
@@ -442,27 +550,40 @@ export const AnatomyAndSimulation: React.FC = () => {
                   Tonton animasi edukatif berdurasi ringkas untuk memahami visual letusan secara nyata.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  speakText(
-                    'Berikut adalah video penjelasan animasi tentang proses gunung meletus. Ayo amati bagaimana magma bergerak ke atas kawah!'
-                  )
-                }
-                className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Pemandu Bicara</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://www.youtube.com/watch?v=V863xR0Y63w"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors"
+                >
+                  <span>Buka di YouTube</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    speakText(
+                      'Berikut adalah video penjelasan animasi tentang proses gunung meletus. Ayo amati bagaimana magma bergerak ke atas kawah!'
+                    )
+                  }
+                  className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Pemandu Bicara</span>
+                </button>
+              </div>
             </div>
 
             {/* Video Player Frame with Educational Video */}
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-md border border-stone-800">
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-md border-2 border-stone-800">
               <iframe
                 className="w-full h-full"
                 src="https://www.youtube-nocookie.com/embed/V863xR0Y63w?rel=0&modestbranding=1"
                 title="Proses Terjadinya Gunung Meletus - Animasi Edukasi Kelas 6 SD"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               ></iframe>
             </div>
@@ -620,6 +741,9 @@ export const AnatomyAndSimulation: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Fullscreen HD Image Preview Modal */}
+      <ImageModal data={modalData} onClose={() => setModalData(null)} />
     </div>
   );
 };

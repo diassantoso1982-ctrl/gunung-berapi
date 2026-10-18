@@ -128,18 +128,113 @@ export function playEruptionSound() {
   }
 }
 
-// Web Speech API Text-to-Speech (Indonesian voice preference)
+// Web Speech API Text-to-Speech (Indonesian voice preference with long-reading support)
 let isSpeakingState = false;
+let keepAliveTimer: number | null = null;
+let currentUtteranceQueue: SpeechSynthesisUtterance[] = [];
+let cachedVoices: SpeechSynthesisVoice[] = [];
+
+function loadVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return [];
+  const voices = window.speechSynthesis.getVoices();
+  if (voices && voices.length > 0) {
+    cachedVoices = voices;
+  }
+  return cachedVoices;
+}
+
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    loadVoices();
+  };
+}
 
 export function isSpeechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
+export function isCurrentlySpeaking(): boolean {
+  return isSpeakingState;
+}
+
+function clearKeepAlive() {
+  if (keepAliveTimer !== null) {
+    clearInterval(keepAliveTimer);
+    keepAliveTimer = null;
+  }
+}
+
+function startKeepAlive() {
+  clearKeepAlive();
+  // Chrome bug workaround: speech synthesis can stall after ~15s.
+  // Periodically toggling pause/resume keeps the audio thread active.
+  keepAliveTimer = window.setInterval(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }
+  }, 7000);
+}
+
 export function stopSpeaking() {
+  clearKeepAlive();
+  currentUtteranceQueue = [];
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
   isSpeakingState = false;
+}
+
+/**
+ * Split text into natural Indonesian sentences suitable for complete, uninterrupted reading.
+ */
+function splitIntoSentences(text: string): string[] {
+  const cleaned = text
+    .replace(/[#*_`~]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleaned) return [];
+
+  // Match sentences ending in ., !, ?, :, or newlines
+  const regex = /[^.!?\n]+[.!?\n]*/g;
+  const matches = cleaned.match(regex);
+  if (!matches || matches.length === 0) {
+    return [cleaned];
+  }
+
+  const sentences: string[] = [];
+  let buffer = '';
+
+  for (const item of matches) {
+    const trimmed = item.trim();
+    if (!trimmed) continue;
+
+    // If an item is very short (e.g. "Pos 1."), buffer it with the next sentence
+    if (trimmed.length < 15 && !trimmed.endsWith('.')) {
+      buffer += (buffer ? ' ' : '') + trimmed;
+    } else {
+      const full = buffer ? `${buffer} ${trimmed}` : trimmed;
+      buffer = '';
+      // Limit sentence chunk size to ~180 chars to avoid any browser speech buffer overflow
+      if (full.length > 200) {
+        // Split further by commas if very long
+        const subParts = full.split(/,\s+/);
+        sentences.push(...subParts.filter(Boolean));
+      } else {
+        sentences.push(full);
+      }
+    }
+  }
+
+  if (buffer) {
+    sentences.push(buffer);
+  }
+
+  return sentences.filter((s) => s.length > 0);
 }
 
 export function speakText(
@@ -157,43 +252,66 @@ export function speakText(
 
   stopSpeaking();
 
-  // Clean text from emojis or markdown symbols that could confuse speech synthesizer
-  const cleanText = text
-    .replace(/[#*_`]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!cleanText) return;
-
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = 'id-ID';
-  utterance.rate = 0.95; // Slightly slower, very clear for 6th grade SD
-  utterance.pitch = 1.05; // Friendly, engaging tone
-
-  // Attempt to select an Indonesian voice if available
-  const voices = window.speechSynthesis.getVoices();
-  const idVoice = voices.find(
-    (v) => v.lang.toLowerCase().includes('id') || v.name.toLowerCase().includes('indonesia')
-  );
-  if (idVoice) {
-    utterance.voice = idVoice;
+  const sentences = splitIntoSentences(text);
+  if (sentences.length === 0) {
+    callbacks?.onEnd?.();
+    return;
   }
 
-  utterance.onstart = () => {
-    isSpeakingState = true;
-    callbacks?.onStart?.();
+  const voices = loadVoices();
+  // Find Indonesian voice: prefer id-ID, then id, or Indonesian in name
+  const idVoice =
+    voices.find(
+      (v) =>
+        v.lang === 'id-ID' ||
+        v.lang === 'id_ID' ||
+        v.lang.toLowerCase().startsWith('id') ||
+        v.name.toLowerCase().includes('indonesia')
+    ) || null;
+
+  isSpeakingState = true;
+  callbacks?.onStart?.();
+  startKeepAlive();
+
+  let currentIndex = 0;
+
+  const speakNextSentence = () => {
+    if (currentIndex >= sentences.length) {
+      stopSpeaking();
+      callbacks?.onEnd?.();
+      return;
+    }
+
+    const sentenceText = sentences[currentIndex];
+    const utterance = new SpeechSynthesisUtterance(sentenceText);
+    utterance.lang = 'id-ID';
+    utterance.rate = 0.92; // Clear, measured pace ideal for Indonesian elementary students
+    utterance.pitch = 1.04; // Friendly, warm tone for Kapten Nala
+
+    if (idVoice) {
+      utterance.voice = idVoice;
+    }
+
+    utterance.onend = () => {
+      currentIndex++;
+      speakNextSentence();
+    };
+
+    utterance.onerror = (e) => {
+      // If cancelled intentionally by stopSpeaking, do not treat as fatal error
+      if (e.error === 'canceled' || e.error === 'interrupted') {
+        clearKeepAlive();
+        isSpeakingState = false;
+        return;
+      }
+      console.warn('SpeechSynthesis error on chunk:', e);
+      currentIndex++;
+      speakNextSentence();
+    };
+
+    window.speechSynthesis.speak(utterance);
   };
 
-  utterance.onend = () => {
-    isSpeakingState = false;
-    callbacks?.onEnd?.();
-  };
-
-  utterance.onerror = (e) => {
-    isSpeakingState = false;
-    callbacks?.onError?.(e);
-    callbacks?.onEnd?.();
-  };
-
-  window.speechSynthesis.speak(utterance);
+  speakNextSentence();
 }
+

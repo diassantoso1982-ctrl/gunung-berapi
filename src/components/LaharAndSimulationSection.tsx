@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CloudRain, Sparkles, Flame, Volume2, ArrowRight, RotateCcw, Film } from 'lucide-react';
+import { CloudRain, Sparkles, Flame, Volume2, ArrowRight, RotateCcw, Film, Maximize2, ExternalLink, Play, Pause } from 'lucide-react';
 import { playClickSound, playEruptionSound, speakText } from '../utils/audio';
+import { aliranLaharImg, resolveAssetUrl } from '../assets/images';
+import { ImageModal, ImageModalData } from './ImageModal';
 
 interface LaharAndSimulationSectionProps {
   onContinue: () => void;
@@ -13,6 +15,8 @@ export const LaharAndSimulationSection: React.FC<LaharAndSimulationSectionProps>
   const [selectedHotspot, setSelectedHotspot] = useState<string>('hujan');
   const [gasPressure, setGasPressure] = useState<number>(80);
   const [isErupting, setIsErupting] = useState<boolean>(false);
+  const [modalData, setModalData] = useState<ImageModalData | null>(null);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('V863xR0Y63w');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const laharHotspots = [
@@ -216,14 +220,66 @@ export const LaharAndSimulationSection: React.FC<LaharAndSimulationSectionProps>
         {/* TAB 1: VISUALISASI LAHAR DINGIN */}
         {activeTab === 'lahar' && (
           <div className="space-y-4">
-            <div className="relative rounded-2xl overflow-hidden border-2 border-stone-800 shadow-md">
+            <div className="relative rounded-2xl overflow-hidden border-2 border-stone-800 shadow-md group">
               <img
-                src="/src/assets/images/aliran_lahar_1791906530533.jpg"
-                alt="Visualisasi Aliran Lahar Dingin"
-                referrerPolicy="no-referrer"
-                className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover"
+                src={aliranLaharImg}
+                alt="Visualisasi Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/aliran_lahar.jpg');
+                }}
+                className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover transition-transform duration-300 group-hover:scale-102 cursor-zoom-in"
+                onClick={() =>
+                  setModalData({
+                    title: 'Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai',
+                    subtitle: 'Pos 4 · Peta Investigasi Sungai Kapten Nala',
+                    src: aliranLaharImg,
+                    fallbackSrc: resolveAssetUrl('images/aliran_lahar.jpg'),
+                    alt: 'Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai',
+                    caption:
+                      'Visualisasi banjir lahar dingin yang dipicu guyuran hujan lebat di puncak gunung. Jutaan meter kubik abu dan kerikil vulkanik larut menjadi banjir lumpur pekat berdaya dorong luar biasa hingga mampu menghanyutkan batu-batu raksasa seukuran mobil ke lembah sungai.',
+                    speechText:
+                      'Perhatikan alur sungai ini Kawan! Saat hujan deras di puncak gunung, abu vulkanik larut menjadi banjir lahar dingin yang sanggup menghanyutkan batu kali raksasa!',
+                    legendItems: [
+                      { label: 'Heavy Rainfall', color: '#38bdf8', desc: 'Hujan deras pemicu banjir di puncak' },
+                      { label: 'Lahar Dingin', color: '#a16207', desc: 'Aliran lumpur pekat bercampur pasir kerikil' },
+                      { label: 'Boulders', color: '#57534e', desc: 'Batu-batu raksasa menggelinding terbawa arus' },
+                      { label: 'River Valley', color: '#15803d', desc: 'Lembah sungai jalur evakuasi wajib diwaspadai' },
+                      { label: 'Warning Sign', color: '#eab308', desc: 'Rambu bahaya awas lahar dingin' },
+                    ],
+                  })
+                }
               />
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950 via-stone-900/70 to-transparent p-4 sm:p-5 text-white">
+
+              {/* Quick Zoom HD Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setModalData({
+                    title: 'Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai',
+                    subtitle: 'Pos 4 · Peta Investigasi Sungai Kapten Nala',
+                    src: aliranLaharImg,
+                    fallbackSrc: resolveAssetUrl('images/aliran_lahar.jpg'),
+                    alt: 'Aliran Banjir Lahar Dingin & Batu-Batu Besar di Sungai',
+                    caption:
+                      'Visualisasi banjir lahar dingin yang dipicu guyuran hujan lebat di puncak gunung. Jutaan meter kubik abu dan kerikil vulkanik larut menjadi banjir lumpur pekat berdaya dorong luar biasa hingga mampu menghanyutkan batu-batu raksasa seukuran mobil ke lembah sungai.',
+                    speechText:
+                      'Perhatikan alur sungai ini Kawan! Saat hujan deras di puncak gunung, abu vulkanik larut menjadi banjir lahar dingin yang sanggup menghanyutkan batu kali raksasa!',
+                    legendItems: [
+                      { label: 'Heavy Rainfall', color: '#38bdf8', desc: 'Hujan deras pemicu banjir di puncak' },
+                      { label: 'Lahar Dingin', color: '#a16207', desc: 'Aliran lumpur pekat bercampur pasir kerikil' },
+                      { label: 'Boulders', color: '#57534e', desc: 'Batu-batu raksasa menggelinding terbawa arus' },
+                      { label: 'River Valley', color: '#15803d', desc: 'Lembah sungai jalur evakuasi wajib diwaspadai' },
+                      { label: 'Warning Sign', color: '#eab308', desc: 'Rambu bahaya awas lahar dingin' },
+                    ],
+                  })
+                }
+                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-amber-300 hover:text-white text-xs font-bold backdrop-blur-sm border border-stone-700 shadow-md transition-all active:scale-95"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Perbesar Gambar (HD Zoom)</span>
+              </button>
+
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950 via-stone-900/70 to-transparent p-4 sm:p-5 text-white pointer-events-none">
                 <span className="text-[10px] font-bold tracking-widest text-amber-300 uppercase block">
                   Peta Investigasi Sungai Kapten Nala
                 </span>
@@ -290,19 +346,87 @@ export const LaharAndSimulationSection: React.FC<LaharAndSimulationSectionProps>
 
         {/* TAB 2: VIDEO */}
         {activeTab === 'video' && (
-          <div className="space-y-3">
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-md border border-stone-800">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedVideoId('V863xR0Y63w')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedVideoId === 'V863xR0Y63w'
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  }`}
+                >
+                  🎬 Video 1: Animasi Letusan SD
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedVideoId('lAmqsMQG3RM')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedVideoId === 'lAmqsMQG3RM'
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  }`}
+                >
+                  🌋 Video 2: Proses Magma & Lahar
+                </button>
+              </div>
+
+              <a
+                href={`https://www.youtube.com/watch?v=${selectedVideoId}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-bold hover:underline"
+                title="Buka langsung di YouTube tab baru"
+              >
+                <span>Buka di YouTube</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-md border-2 border-stone-800">
               <iframe
+                key={selectedVideoId}
                 className="w-full h-full"
-                src="https://www.youtube-nocookie.com/embed/V863xR0Y63w?rel=0&modestbranding=1"
+                src={`https://www.youtube-nocookie.com/embed/${selectedVideoId}?rel=0&modestbranding=1`}
                 title="Proses Terjadinya Gunung Meletus - Video Animasi Siswa SD"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               ></iframe>
             </div>
-            <p className="text-xs text-stone-500 text-center">
-              Video animasi pembelajaran resmi untuk memahami visualisasi semburan magma dan awan abu.
-            </p>
+
+            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-stone-700 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-xs sm:text-sm text-stone-900 flex items-center gap-1.5">
+                  <span>📺 Panduan Belajar Sambil Menonton Video</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    speakText(
+                      'Tonton video animasi ini dengan cermat kawan! Amati bagaimana tekanan gas mendorong magma dari dalam perut bumi hingga menyembur keluar kawah menjadi lava dan awan abu!'
+                    )
+                  }
+                  className="flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Dengarkan Petunjuk</span>
+                </button>
+              </div>
+              <ul className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+                <li className="bg-white p-2.5 rounded-xl border border-amber-200/60">
+                  <strong>1. Dapur Magma:</strong> Cairan batuan membara di kedalaman bumi yang mencari jalan keluar.
+                </li>
+                <li className="bg-white p-2.5 rounded-xl border border-amber-200/60">
+                  <strong>2. Dorongan Gas:</strong> Gelembung gas memuai menghasilkan tekanan jutaan atmosfer.
+                </li>
+                <li className="bg-white p-2.5 rounded-xl border border-amber-200/60">
+                  <strong>3. Kolom Erupsi & Lahar:</strong> Terlemparnya abu ke udara serta banjir lumpur saat hujan.
+                </li>
+              </ul>
+            </div>
           </div>
         )}
 
@@ -311,7 +435,7 @@ export const LaharAndSimulationSection: React.FC<LaharAndSimulationSectionProps>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             <div className="lg:col-span-8 bg-stone-900 rounded-3xl p-4 border border-stone-800 relative">
               <div className="flex items-center justify-between text-xs text-stone-400 mb-2">
-                <span className="font-bold text-amber-400">LAB UJI COBA KAPETEN NALA</span>
+                <span className="font-bold text-amber-400">LAB UJI COBA KAPTEN NALA</span>
                 <span>Status: {isErupting ? '🔴 ERUPSI BERLANGSUNG' : '🟢 Kondisi Siaga'}</span>
               </div>
 
@@ -389,6 +513,9 @@ export const LaharAndSimulationSection: React.FC<LaharAndSimulationSectionProps>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Fullscreen HD Image Preview Modal */}
+      <ImageModal data={modalData} onClose={() => setModalData(null)} />
     </div>
   );
 };

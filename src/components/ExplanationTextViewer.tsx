@@ -12,13 +12,16 @@ import {
   RotateCcw,
   CheckCircle2,
   HelpCircle,
+  Square,
+  Play,
 } from 'lucide-react';
 import { TEKS_EKSPLANASI_DATA } from '../data/volcanoData';
-import { speakText, playClickSound, playSuccessSound, playWrongSound } from '../utils/audio';
+import { speakText, stopSpeaking, playClickSound, playSuccessSound, playWrongSound } from '../utils/audio';
 
 export const ExplanationTextViewer: React.FC = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'tahap' | 'utuh' | 'game'>('tahap');
+  const [isReadingFull, setIsReadingFull] = useState<boolean>(false);
 
   // Mini-game state for matching text snippets to explanation text structures
   const sampleSnippets = [
@@ -273,14 +276,34 @@ export const ExplanationTextViewer: React.FC = () => {
                 </h3>
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleReadSection(currentSection.guideSpeech)}
-                className="self-start sm:self-auto flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200 transition-colors"
-              >
-                <Volume2 className="w-4 h-4 text-orange-600" />
-                <span>Bacakan Penjelasan Struktur Ini</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    handleReadSection(currentSection.guideSpeech);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200 transition-colors"
+                  title="Dengarkan penjelasan pengantar Kapten Nala"
+                >
+                  <Volume2 className="w-4 h-4 text-orange-600" />
+                  <span>Petunjuk Kapten</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    const fullText = `${currentSection.title}. ${currentSection.shortSummary}. ${currentSection.content.join(' ')}`;
+                    handleReadSection(fullText);
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold hover:bg-orange-600 shadow-xs active:scale-95 transition-all"
+                  title="Pemandu membaca seluruh isi paragraf bagian ini secara lengkap"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  <span>Baca Lengkap Isi Paragraf Ini</span>
+                </button>
+              </div>
             </div>
 
             {/* Paragraph Content */}
@@ -368,20 +391,70 @@ export const ExplanationTextViewer: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-stone-100 flex justify-center">
+          {/* Audio Reading Controls for Full Text */}
+          <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {isReadingFull ? (
+              <button
+                type="button"
+                onClick={() => {
+                  stopSpeaking();
+                  setIsReadingFull(false);
+                }}
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs sm:text-sm shadow-md animate-pulse active:scale-95 transition-all"
+              >
+                <Square className="w-4 h-4 fill-current" />
+                <span>Hentikan Pembacaan Teks</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setIsReadingFull(true);
+                  const fullReading = [
+                    'Karangan Teks Eksplanasi Lengkap: Proses Terjadinya Gunung Meletus.',
+                    'Bagian Pertama: Pernyataan Umum.',
+                    ...TEKS_EKSPLANASI_DATA[0].content,
+                    'Bagian Kedua: Deretan Penjelas Urutan Proses Letusan.',
+                    ...TEKS_EKSPLANASI_DATA[1].content,
+                    'Bagian Ketiga: Penutup atau Kesimpulan dan Mitigasi Bencana.',
+                    ...TEKS_EKSPLANASI_DATA[2].content,
+                  ].join(' ');
+                  speakText(fullReading, {
+                    onEnd: () => setIsReadingFull(false),
+                    onError: () => setIsReadingFull(false),
+                  });
+                }}
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-orange-500 text-white font-extrabold text-xs sm:text-sm hover:bg-orange-600 shadow-md active:scale-95 transition-all"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span>Dengarkan Pembacaan Seluruh Teks Lengkap (3 Bagian)</span>
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                playClickSound();
+                setIsReadingFull(false);
                 speakText(
-                  'Teks Eksplanasi: Proses Terjadinya Gunung Meletus. Terdiri dari pernyataan umum tentang pengertian gunung meletus, deretan penjelas tentang proses mendidihnya magma hingga letusan, dan penutup tentang kesimpulan manfaat kesuburan tanah.'
-                )
-              }
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 text-white font-bold text-xs sm:text-sm hover:bg-orange-600 shadow-xs"
+                  'Teks Eksplanasi: Proses Terjadinya Gunung Meletus. Terdiri dari 1. Pernyataan umum tentang pengertian gunung meletus, 2. Deretan penjelas tentang proses bertahap dari dapur magma hingga letusan erupsi, dan 3. Penutup tentang kesimpulan manfaat tanah subur serta langkah mitigasi warga.'
+                );
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition-colors"
             >
-              <Volume2 className="w-4 h-4" />
-              <span>Dengarkan Ringkasan Teks Utuh</span>
+              <Volume2 className="w-3.5 h-3.5 text-orange-600" />
+              <span>Dengarkan Ringkasan Singkat Saja</span>
             </button>
           </div>
+
+          {isReadingFull && (
+            <div className="text-center">
+              <span className="inline-flex items-center gap-2 text-xs font-bold text-orange-700 bg-orange-100/90 border border-orange-300 px-4 py-1.5 rounded-full animate-bounce">
+                📢 Kapten Nala sedang membacakan seluruh teks bacaan secara lengkap...
+              </span>
+            </div>
+          )}
         </div>
       )}
 

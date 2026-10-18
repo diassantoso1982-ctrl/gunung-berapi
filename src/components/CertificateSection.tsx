@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Award, Printer, CheckCircle, Sparkles, Volume2, BookCheck } from 'lucide-react';
 import { speakText, playSuccessSound, playClickSound } from '../utils/audio';
+import { kaptenNalaImg, resolveAssetUrl } from '../assets/images';
 
 interface CertificateSectionProps {
   quizScore: number;
@@ -177,9 +178,11 @@ export const CertificateSection: React.FC<CertificateSectionProps> = ({ quizScor
 
             <div className="text-right flex items-center gap-2">
               <img
-                src="/src/assets/images/kapten_nala_1791906531237.jpg"
+                src={kaptenNalaImg}
                 alt="Kapten Nala"
-                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/kapten_nala.jpg');
+                }}
                 className="w-9 h-9 rounded-full border border-amber-400 object-cover object-top"
               />
               <div>

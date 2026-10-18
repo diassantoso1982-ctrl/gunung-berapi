@@ -1,7 +1,9 @@
-import React from 'react';
-import { Flame, Sparkles, Wind, Lightbulb, Volume2, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Flame, Sparkles, Wind, Lightbulb, Volume2, ArrowRight, Maximize2, Eye } from 'lucide-react';
 import { PENJELASAN_SINGKAT } from '../data/volcanoData';
 import { speakText, playClickSound } from '../utils/audio';
+import { gunungMeletusImg, resolveAssetUrl } from '../assets/images';
+import { ImageModal, ImageModalData } from './ImageModal';
 
 interface IntroductionSectionProps {
   onContinue: () => void;
@@ -9,6 +11,7 @@ interface IntroductionSectionProps {
 }
 
 export const IntroductionSection: React.FC<IntroductionSectionProps> = ({ onContinue, onJumpToAnimation }) => {
+  const [modalData, setModalData] = useState<ImageModalData | null>(null);
   return (
     <div className="space-y-6">
       {/* Hero Title & Short Explanation */}
@@ -40,14 +43,68 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({ onCont
         </div>
 
         {/* Visual Real Eruption Illustration with Kapten Nala Seal */}
-        <div className="relative rounded-2xl overflow-hidden border-2 border-amber-300 shadow-md">
+        <div className="relative rounded-2xl overflow-hidden border-2 border-amber-300 shadow-md group">
           <img
-            src="/src/assets/images/gunung_meletus_1791906529026.jpg"
-            alt="Ilustrasi Proses Gunung Meletus"
-            referrerPolicy="no-referrer"
-            className="w-full aspect-[16/9] object-cover"
+            src={gunungMeletusImg}
+            alt="Visualisasi Detail Bagian Erupsi Gunung Berapi"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = resolveAssetUrl('images/gunung_meletus.jpg');
+            }}
+            className="w-full aspect-[16/9] object-cover transition-transform duration-300 group-hover:scale-102 cursor-zoom-in"
+            onClick={() =>
+              setModalData({
+                title: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                subtitle: 'Pos 1 · Dermaga Ekspedisi Kapten Nala',
+                src: gunungMeletusImg,
+                fallbackSrc: resolveAssetUrl('images/gunung_meletus.jpg'),
+                alt: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                caption:
+                  'Visualisasi penampang letusan gunung berapi memperlihatkan dapur magma di bawah tanah, pipa kepundan, lubang kawah, kolom abu vulkanik membubung ke angkasa dengan kilatan petir, aliran lava pijar membakar lereng, dan luncuran awan panas berbahaya.',
+                speechText:
+                  'Perhatikan gambar ini Kawan! Kamu bisa melihat kolom abu vulkanik yang tinggi, semburan lava pijar dari kawah, dan dapur magma di bawah tanah yang mendorong letusan ini!',
+                legendItems: [
+                  { label: 'Magma Chamber', color: '#dc2626', desc: 'Dapur magma di kedalaman perut bumi' },
+                  { label: 'Crater (Kawah)', color: '#f59e0b', desc: 'Mulut letusan tempat material dimuntahkan' },
+                  { label: 'Ash Cloud', color: '#64748b', desc: 'Kolom abu pekat membubung ke atmosfer' },
+                  { label: 'Lava Flow', color: '#ea580c', desc: 'Cairan batuan panas mengalir di lereng' },
+                  { label: 'Volcanic Bombs', color: '#b91c1c', desc: 'Batu pijar terlontar ke udara' },
+                  { label: 'Pyroclastic Flow', color: '#71717a', desc: 'Awan panas bergulung-gulung di lereng' },
+                ],
+              })
+            }
           />
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950/90 via-stone-900/60 to-transparent p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+
+          {/* Quick Zoom HD Button */}
+          <button
+            type="button"
+            onClick={() =>
+              setModalData({
+                title: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                subtitle: 'Pos 1 · Dermaga Ekspedisi Kapten Nala',
+                src: gunungMeletusImg,
+                fallbackSrc: '/images/gunung_meletus.jpg',
+                alt: 'Visualisasi Detail Bagian Erupsi Gunung Berapi',
+                caption:
+                  'Visualisasi penampang letusan gunung berapi memperlihatkan dapur magma di bawah tanah, pipa kepundan, lubang kawah, kolom abu vulkanik membubung ke angkasa dengan kilatan petir, aliran lava pijar membakar lereng, dan luncuran awan panas berbahaya.',
+                speechText:
+                  'Perhatikan gambar ini Kawan! Kamu bisa melihat kolom abu vulkanik yang tinggi, semburan lava pijar dari kawah, dan dapur magma di bawah tanah yang mendorong letusan ini!',
+                legendItems: [
+                  { label: 'Magma Chamber', color: '#dc2626', desc: 'Dapur magma di kedalaman perut bumi' },
+                  { label: 'Crater (Kawah)', color: '#f59e0b', desc: 'Mulut letusan tempat material dimuntahkan' },
+                  { label: 'Ash Cloud', color: '#64748b', desc: 'Kolom abu pekat membubung ke atmosfer' },
+                  { label: 'Lava Flow', color: '#ea580c', desc: 'Cairan batuan panas mengalir di lereng' },
+                  { label: 'Volcanic Bombs', color: '#b91c1c', desc: 'Batu pijar terlontar ke udara' },
+                  { label: 'Pyroclastic Flow', color: '#71717a', desc: 'Awan panas bergulung-gulung di lereng' },
+                ],
+              })
+            }
+            className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-amber-300 hover:text-white text-xs font-bold backdrop-blur-sm border border-stone-700 shadow-md transition-all active:scale-95"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Perbesar Gambar (HD Zoom)</span>
+          </button>
+
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-stone-950/90 via-stone-900/60 to-transparent p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2 pointer-events-none">
             <div>
               <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300 block">
                 Peta Pengamatan Kapten Nala
@@ -157,6 +214,9 @@ export const IntroductionSection: React.FC<IntroductionSectionProps> = ({ onCont
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Fullscreen HD Image Preview Modal */}
+      <ImageModal data={modalData} onClose={() => setModalData(null)} />
     </div>
   );
 };
